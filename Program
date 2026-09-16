@@ -1,0 +1,254 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Emit;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Milestone_2_final
+{
+    
+        
+
+enum Menu
+    {
+        Discount = 1,
+        Coupon,
+        Reward,
+        Order,
+        Checkout,
+        Exit
+    }
+
+    enum MediaType
+    {
+        VHS = 1,
+        DVD,
+        CD
+    }
+
+    class Program
+    {
+        static void Main()
+        {
+            bool exit = false;
+            while (!exit)
+            {
+                Console.Clear();
+                Customer customer = GetCustomerDetails();
+                List<Item> cart = new List<Item>();
+
+                while (true)
+                {
+                    switch (DisplayMenu())
+                    {
+                        case Menu.Discount:
+                            ApplyDiscount(customer);
+                            break;
+                        case Menu.Coupon:
+                            ApplyCoupon(customer);
+                            break;
+                        case Menu.Reward:
+                            ApplyReward(customer);
+                            break;
+                        case Menu.Order:
+                            OrderItems(cart);
+                            break;
+                        case Menu.Checkout:
+                            Checkout(cart, customer);
+                            break;
+                        case Menu.Exit:
+                            exit = true;
+                            break;
+                    }
+                    if (exit || ConfirmExit()) break;
+                }
+            }
+        }
+
+        static Customer GetCustomerDetails()
+        {
+            Console.Write("Enter customer name: ");
+            string name = Console.ReadLine();
+            Console.Write("Enter customer contact: ");
+            string contact = Console.ReadLine();
+            return new Customer(name, contact);
+        }
+        /*Apply Discount (), ApplyCoupon (), and a friendly reminder for... AppyReward (): 
+         * Dummy public methods to apply the loyalty program benefit against customer.*/
+        static Menu DisplayMenu()
+        {
+            Console.WriteLine("\nSelect an option:");
+            Console.WriteLine("1. Apply Discount");
+            Console.WriteLine("2. Apply Coupon");
+            Console.WriteLine("3. Apply Reward");
+            Console.WriteLine("4. Order Items");
+            Console.WriteLine("5. Checkout");
+            Console.WriteLine("6. Exit");
+            int choice = int.Parse(Console.ReadLine());
+            return (Menu)choice;
+        }
+
+        static void ApplyDiscount(Customer customer)
+        {
+            // this calculates the number of years, the customer has been registered.
+            Console.WriteLine("Enter the  year of  registration:");
+            int Registrationyear =int.Parse( Console.ReadLine());
+            Console.WriteLine("what is the currect year:");
+            int currentyear = int.Parse(Console.ReadLine());
+           int yearsregistered= currentyear- Registrationyear;
+            Console.WriteLine("You have been registered for "+ yearsregistered + " years ");
+
+            if (yearsregistered < 5)
+            {
+                Console.WriteLine("You qualify for a 5% discount!!");
+            }
+
+
+            else  if(yearsregistered<10)
+            {
+                Console.WriteLine("You qualify for a 10% discount!!");
+
+            }
+             
+            else if( yearsregistered<15)
+            {
+                Console.WriteLine("You qualify for a 20% discount!!");
+            }
+
+            else if(yearsregistered>=15)
+            {
+                Console.WriteLine("You qualify for a 35% discount!!");
+            }
+
+            else 
+            {
+            Console.WriteLine("You do not qualify for a discount");
+            }
+
+        
+        }
+
+        static void ApplyCoupon(Customer customer)
+        {
+           Console.WriteLine("How many titles have you rented:");
+            int titles = int.Parse((Console.ReadLine()));
+
+            if (titles>=10 && titles <= 24)
+            {
+                Console.WriteLine("you qualify for 1 free rental");
+            }
+          else if(titles>=25 && titles>=49)
+            {
+                Console.WriteLine("You qulify for 2 free rentals");
+            }
+            else if (titles >= 50 && titles >= 74)
+            {
+                Console.WriteLine("You qulify for 4 free rentals");
+            }
+            else if (titles >= 75 )
+            {
+                Console.WriteLine("You qulify for 8 free rentals");
+            }
+
+           else
+            {
+                Console.WriteLine("You dont qualify for a coupon");
+            }
+        }
+
+        static void ApplyReward(Customer customer)
+        {
+            Console.WriteLine("How long have you been a customer:");
+             int period= int.Parse((Console.ReadLine()));
+            if(period>=5 && period>=9)
+            {
+                Console.WriteLine("You qualify for 25+ rentals and 1Bronze-tier");
+            }
+            else if(period>=10 && period>=14)
+            {
+                Console.WriteLine("You qualify for 50+ rentals and a 3 Bronze-tier + 1 Silver-tier");
+            }
+            else if (period >= 15)
+            {
+                Console.WriteLine("You qualify for 75+ rentals and a 5 Bronze-tier + 2 Silver-tier + 1 Gold-tier");
+            }
+            else 
+            {
+            Console.WriteLine("You dont qualify for a Lost Media Reward");
+            }
+        }
+        //Order the items, mention it to add into cart
+        static void OrderItems(List<Item> cart)
+        {
+            Console.WriteLine("\nSelect a media type to order:");
+            Console.WriteLine("1. VHS");
+            Console.WriteLine("2. DVD");
+            Console.WriteLine("3. CD");
+            int choice = int.Parse(Console.ReadLine());
+            MediaType mediaType = (MediaType)choice;
+
+            Console.Write("Enter the title: ");
+            string title = Console.ReadLine();
+            Console.Write("Enter the price: ");
+            decimal price = decimal.Parse(Console.ReadLine());
+
+            cart.Add(new Item(mediaType, title, price));
+            Console.WriteLine($"{title} added to cart.");
+        }
+
+        /*It serves the checkout process, for which it implements perhaps a better name is totalPrice Calculation () which
+        totals up in value all items & display: purchased Items*/
+        static void Checkout(List<Item> cart, Customer customer)
+        {
+            decimal total = 0;
+            Console.WriteLine("\nItems Ordered:");
+            foreach (var item in cart)
+            {
+                Console.WriteLine($"{item.MediaType}: {item.Title} - ${item.Price}");
+                total += item.Price;
+            }
+
+            // 
+            //
+            Console.WriteLine($"Total Amount Due: R{total}");
+            cart.Clear();
+            Console.WriteLine("Checkout complete. Cart has been reset.");
+        }
+
+        static bool ConfirmExit()
+        {
+            Console.Write("Do you want to exit the application? (y/n): ");
+            char choice = Console.ReadKey().KeyChar;
+            return choice == 'y' || choice == 'Y';
+        }
+    }
+
+    class Customer
+    {
+        public string Name { get; }
+        public string Contact { get; }
+
+        public Customer(string name, string contact)
+        {
+            Name = name;
+            Contact = contact;
+        }
+    }
+
+    class Item
+    {
+        public MediaType MediaType { get; }
+        public string Title { get; }
+        public decimal Price { get; }
+
+        public Item(MediaType mediaType, string title, decimal price)
+        {
+            MediaType = mediaType;
+            Title = title;
+            Price = price;
+        }
+    }
+
+}
+
